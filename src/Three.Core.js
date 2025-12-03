@@ -37,6 +37,7 @@ export { CanvasTexture } from './textures/CanvasTexture.js';
 export { DepthTexture } from './textures/DepthTexture.js';
 export { CubeDepthTexture } from './textures/CubeDepthTexture.js';
 export { ExternalTexture } from './textures/ExternalTexture.js';
+export { ExternalVideoTexture } from './textures/ExternalVideoTexture.js';
 export { Texture } from './textures/Texture.js';
 export * from './geometries/Geometries.js';
 export * from './materials/Materials.js';
