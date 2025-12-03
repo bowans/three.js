@@ -317,6 +317,13 @@ class Bindings extends DataMap {
 
 					cacheBindings = false;
 
+					// External video textures need a fresh bind group each frame to keep the imported token active.
+					if ( textureData.externalTexture !== undefined ) {
+
+						needsBindingsUpdate = true;
+
+					}
+
 				} else {
 
 					cacheIndex = cacheIndex * 10 + texture.id;
