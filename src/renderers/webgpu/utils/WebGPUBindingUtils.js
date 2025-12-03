@@ -348,7 +348,20 @@ class WebGPUBindingUtils {
 
 				if ( textureData.externalTexture !== undefined ) {
 
-					resourceGPU = device.importExternalTexture( { source: textureData.externalTexture } );
+					const source = textureData.externalTexture;
+
+					const isVideoElement = ( typeof HTMLVideoElement !== 'undefined' ) && ( source instanceof HTMLVideoElement );
+					const isVideoFrame = ( typeof VideoFrame !== 'undefined' ) && ( source instanceof VideoFrame );
+
+					if ( isVideoElement || isVideoFrame ) {
+
+						resourceGPU = device.importExternalTexture( { source } );
+
+					} else {
+
+						error( 'WebGPUBindingUtils: External video texture requires an HTMLVideoElement or VideoFrame as source.' );
+
+					}
 
 				} else {
 
@@ -468,6 +481,10 @@ class WebGPUBindingUtils {
 				}
 
 				bindingGPU.buffer = buffer;
+
+			} else if ( binding.isSampledTexture && binding.texture.isExternalTexture === true && binding.texture.isVideoTexture === true ) {
+
+				bindingGPU.externalTexture = {}; // GPUExternalTextureBindingLayout
 
 			} else if ( binding.isSampledTexture && binding.store ) {
 

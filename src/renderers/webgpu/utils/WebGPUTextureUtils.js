@@ -217,11 +217,39 @@ class WebGPUTextureUtils {
 
 		if ( textureData.initialized ) {
 
-			throw new Error( 'WebGPUTextureUtils: Texture already initialized.' );
+			// Allow re-binding of external video textures (source may change per frame)
+			if ( texture.isExternalTexture === true && texture.isVideoTexture === true ) {
+
+				textureData.externalTexture = texture.image;
+				return;
+
+			}
+
+			error( 'WebGPUTextureUtils: Texture already initialized.' );
 
 		}
 
-		if ( texture.isExternalTexture ) {
+		if ( texture.isExternalTexture === true && texture.isVideoTexture === true ) {
+
+			const source = texture.image;
+
+			const isVideoElement = ( typeof HTMLVideoElement !== 'undefined' ) && ( source instanceof HTMLVideoElement );
+			const isVideoFrame = ( typeof VideoFrame !== 'undefined' ) && ( source instanceof VideoFrame );
+
+			if ( isVideoElement || isVideoFrame ) {
+
+				textureData.externalTexture = source;
+				textureData.initialized = true;
+
+			} else {
+
+				warn( 'WebGPUTextureUtils: ExternalVideoTexture requires an HTMLVideoElement or VideoFrame as source.' );
+
+			}
+
+			return;
+
+		} else if ( texture.isExternalTexture ) {
 
 			textureData.texture = texture.sourceTexture;
 			textureData.initialized = true;
@@ -549,6 +577,11 @@ class WebGPUTextureUtils {
 		} else if ( texture.isCubeTexture ) {
 
 			this._copyCubeMapToTexture( texture, textureData.texture, textureDescriptorGPU );
+
+		} else if ( texture.isExternalTexture === true && texture.isVideoTexture === true ) {
+
+			// External video textures update the imported source reference.
+			textureData.externalTexture = texture.image;
 
 		} else {
 

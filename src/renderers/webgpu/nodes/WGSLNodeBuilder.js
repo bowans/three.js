@@ -620,7 +620,19 @@ class WGSLNodeBuilder extends NodeBuilder {
 
 		let snippet = null;
 
-		if ( this.isUnfilterable( texture ) ) {
+		if ( texture.isExternalTexture === true && texture.isVideoTexture === true ) {
+
+			if ( shaderStage === 'fragment' ) {
+
+				snippet = `textureSampleBaseClampToEdge( ${ textureProperty }, ${ textureProperty }_sampler, vec2<f32>( ${ uvSnippet }.x, 1.0 - ${ uvSnippet }.y ) )`;
+
+			} else {
+
+				error( `WebGPURenderer: External video texture does not support ${ shaderStage } shader.` );
+
+			}
+
+		} else if ( this.isUnfilterable( texture ) ) {
 
 			snippet = this.generateTextureLod( texture, textureProperty, uvSnippet, depthSnippet, offsetSnippet, '0', shaderStage );
 
@@ -1744,7 +1756,11 @@ ${ flowData.code }
 
 				}
 
-				if ( texture.isCubeTexture === true && texture.isDepthTexture === true ) {
+				if ( texture.isExternalTexture === true && texture.isVideoTexture === true ) {
+
+					textureType = 'texture_external';
+
+				} else if ( texture.isCubeTexture === true && texture.isDepthTexture === true ) {
 
 					textureType = 'texture_depth_cube';
 
